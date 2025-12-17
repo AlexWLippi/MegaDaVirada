@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mega da Sorte 🍀</title>
+
+<style>
+    body {
+        margin: 0;
+        font-family: 'Segoe UI', sans-serif;
+        background: radial-gradient(circle at top, #0b6623, #033d1d);
+        color: #fff;
+        text-align: center;
+    }
+
+    h1 {
+        margin-top: 20px;
+        font-size: 2rem;
+    }
+
+    .subtitle {
+        color: #c8ffd4;
+        margin-bottom: 20px;
+    }
+
+    .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(50px, 1fr));
+        gap: 10px;
+        max-width: 600px;
+        margin: auto;
+        padding: 20px;
+    }
+
+    .number {
+        background: #ffd700;
+        color: #064420;
+        font-weight: bold;
+        border-radius: 50%;
+        height: 50px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: transform 0.2s, background 0.2s;
+        user-select: none;
+    }
+
+    .number:hover {
+        transform: scale(1.1);
+    }
+
+    .number.selected {
+        background: #00ff88;
+        box-shadow: 0 0 10px #00ff88;
+    }
+
+    .footer {
+        margin: 20px;
+    }
+
+    button {
+        border: none;
+        border-radius: 30px;
+        padding: 15px 25px;
+        font-size: 1rem;
+        font-weight: bold;
+        cursor: pointer;
+        margin: 5px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.4);
+    }
+
+    .send {
+        background: linear-gradient(135deg, #ffd700, #ffae00);
+        color: #064420;
+    }
+
+    .clear {
+        background: linear-gradient(135deg, #ff5c5c, #ff2e2e);
+        color: #fff;
+    }
+
+    button:disabled {
+        background: #999;
+        cursor: not-allowed;
+    }
+
+    .counter {
+        margin-top: 10px;
+        font-size: 1rem;
+        color: #c8ffd4;
+    }
+</style>
+</head>
+
+<body>
+
+<h1>🍀 Mega da Sorte 🍀</h1>
+<p class="subtitle">Escolha <strong>12 números</strong> para a Mega da Virada</p>
+
+<div class="grid" id="grid"></div>
+
+<div class="footer">
+    <button class="send" id="sendBtn" disabled>Enviar aposta</button>
+    <button class="clear" id="clearBtn">Limpar aposta</button>
+    <div class="counter" id="counter">0 / 12 selecionados</div>
+</div>
+
+<script>
+const grid = document.getElementById('grid');
+const sendBtn = document.getElementById('sendBtn');
+const clearBtn = document.getElementById('clearBtn');
+const counter = document.getElementById('counter');
+
+let selectedNumbers = [];
+
+// Criar números de 1 a 60
+for (let i = 1; i <= 60; i++) {
+    const div = document.createElement('div');
+    div.className = 'number';
+    div.textContent = i;
+
+    div.onclick = () => toggleNumber(i, div);
+    grid.appendChild(div);
+}
+
+function toggleNumber(number, element) {
+    if (selectedNumbers.includes(number)) {
+        selectedNumbers = selectedNumbers.filter(n => n !== number);
+        element.classList.remove('selected');
+    } else {
+        if (selectedNumbers.length >= 12) {
+            alert('Você só pode escolher 12 números 🍀');
+            return;
+        }
+        selectedNumbers.push(number);
+        element.classList.add('selected');
+    }
+
+    updateUI();
+}
+
+function updateUI() {
+    counter.textContent = `${selectedNumbers.length} / 12 selecionados`;
+    sendBtn.disabled = selectedNumbers.length !== 12;
+}
+
+// Limpar aposta
+clearBtn.onclick = () => {
+    selectedNumbers = [];
+    document.querySelectorAll('.number').forEach(el => el.classList.remove('selected'));
+    updateUI();
+};
+
+sendBtn.onclick = async () => {
+    const today = new Date();
+    const dataFormatada = today.toLocaleDateString('pt-BR');
+
+    const body = {
+        "Nro01": selectedNumbers[0],
+        "Nro02": selectedNumbers[1],
+        "Nro03": selectedNumbers[2],
+        "Nro04": selectedNumbers[3],
+        "Nro05": selectedNumbers[4],
+        "Nro06": selectedNumbers[5],
+        "Nro07": selectedNumbers[6],
+        "Nro08": selectedNumbers[7],
+        "Nro09": selectedNumbers[8],
+        "Nro10": selectedNumbers[9],
+        "Nro11": selectedNumbers[10],
+        "Nro12": selectedNumbers[11],
+        "Data": dataFormatada,
+        "Nome": "Alex"
+    };
+
+    try {
+        const response = await fetch(
+            "https://1212696c14efec08a8d4f38e10b430.42.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/8ed9a013dea247f2a705a4d28e23069f/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=k1yc48drtgjI2aDnBuBlN5J-wFfDqLCeyluEZf4prAs",
+            {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(body)
+            }
+        );
+
+        if (response.ok) {
+            alert("🍀 Aposta enviada com sucesso! Boa sorte!");
+            clearBtn.click(); // limpa após envio
+        } else {
+            alert("Erro ao enviar aposta 😢");
+        }
+    } catch (error) {
+        alert("Erro de conexão com a API");
+        console.error(error);
+    }
+};
+</script>
+
+</body>
+</html>
